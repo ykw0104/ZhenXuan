@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import App from "@/App.vue";
+import router from "@/router";
 
 // 引入element-plus
 import ElementPlus from "element-plus";
@@ -22,8 +23,8 @@ const app = createApp(App);
 app.use(ElementPlus, {
   locale: zhCn,
 });
-
 //  注册全局组件
 app.use(globalComponent);
+app.use(router);
 
 app.mount("#app");
