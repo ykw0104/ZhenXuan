@@ -6,12 +6,14 @@
         <el-form class="login_form">
           <el-form-item>
             <el-input
+              class="login_input"
               v-model="loginForm.username"
               :prefix-icon="User"
             ></el-input>
           </el-form-item>
           <el-form-item>
             <el-input
+              class="login_input"
               v-model="loginForm.password"
               type="password"
               show-password
@@ -51,11 +53,19 @@ const loginForm = reactive({
     background-color: rgba(255, 255, 255, 0.4);
     border-radius: 8px;
 
+    .login_input {
+      --el-input-focus-border-color: #303122;
+    }
+
     .button_item {
       margin: 0;
 
       .login_btn {
         width: 100%;
+        --el-button-bg-color: #303122;
+        --el-button-border-color: #303122;
+        --el-button-hover-bg-color: #73767a;
+        --el-button-hover-border-color: #73767a;
       }
     }
   }
