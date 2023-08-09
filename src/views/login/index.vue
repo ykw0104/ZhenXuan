@@ -3,15 +3,20 @@
     <el-row>
       <el-col :span="12" :xs="0"></el-col>
       <el-col :span="12" :xs="24">
-        <el-form class="login_form">
-          <el-form-item>
+        <el-form
+          ref="loginForms"
+          class="login_form"
+          :model="loginForm"
+          :rules="rules"
+        >
+          <el-form-item prop="username">
             <el-input
               class="login_input"
               v-model="loginForm.username"
               :prefix-icon="User"
             ></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item prop="password">
             <el-input
               class="login_input"
               v-model="loginForm.password"
@@ -50,6 +55,9 @@ const $router = useRouter();
 // 登录按钮的加载
 const loading = ref(false);
 
+// 表单
+const loginForms = ref();
+
 // 登录信息
 const loginForm = reactive({
   username: "admin",
@@ -58,6 +66,9 @@ const loginForm = reactive({
 
 // 登录
 const login = async () => {
+  // 表单校验
+  await loginForms.value.validate();
+
   // 按钮加载效果开启
   loading.value = true;
 
@@ -83,6 +94,27 @@ const login = async () => {
     });
   }
 };
+
+// 自定义校验规则
+const validatorUserName = (_rule: any, value: any, callback: any) => {
+  if (value.length >= 5) {
+    callback();
+  } else {
+    callback(new Error("账号长度至少五位"));
+  }
+};
+const validatorPassword = (_rule: any, value: any, callback: any) => {
+  if (value.length >= 6) {
+    callback();
+  } else {
+    callback(new Error("密码长度至少六位"));
+  }
+};
+// 表单校验
+const rules = reactive({
+  username: [{ validator: validatorUserName, trigger: "change" }],
+  password: [{ validator: validatorPassword, trigger: "change" }],
+});
 </script>
 
 <style scoped lang="scss">
