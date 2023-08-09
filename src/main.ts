@@ -1,6 +1,11 @@
 import { createApp } from "vue";
 import App from "@/App.vue";
+
+// 引入路由
 import router from "@/router";
+
+// 引入pinia
+import pinia from "@/store";
 
 // 引入element-plus
 import ElementPlus from "element-plus";
@@ -26,5 +31,6 @@ app.use(ElementPlus, {
 //  注册全局组件
 app.use(globalComponent);
 app.use(router);
+app.use(pinia);
 
 app.mount("#app");

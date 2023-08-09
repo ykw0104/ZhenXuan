@@ -21,7 +21,14 @@
             ></el-input>
           </el-form-item>
           <el-form-item class="button_item">
-            <el-button class="login_btn" type="primary">登录</el-button>
+            <el-button
+              class="login_btn"
+              type="primary"
+              :loading="loading"
+              @click="login"
+            >
+              登录
+            </el-button>
           </el-form-item>
         </el-form>
       </el-col>
@@ -31,12 +38,49 @@
 
 <script setup lang="ts">
 import { User, Lock } from "@element-plus/icons-vue";
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
+import useUserStore from "@/store/modules/user.ts";
+import { useRouter } from "vue-router";
+import { ElNotification } from "element-plus";
 
+const useStore = useUserStore();
+const $router = useRouter();
+
+// 登录按钮的加载
+const loading = ref(false);
+
+// 登录信息
 const loginForm = reactive({
   username: "admin",
   password: "111111",
 });
+
+// 登录
+const login = async () => {
+  // 按钮加载效果开启
+  loading.value = true;
+
+  try {
+    await useStore.userLogin(loginForm);
+    //跳转到首页
+    $router.push("/");
+    // 登录成功信息
+    ElNotification({
+      type: "success",
+      message: "登录成功",
+    });
+    // 按钮加载效果关闭
+    loading.value = false;
+  } catch (error) {
+    // 按钮加载效果关闭
+    loading.value = false;
+    // 登录失败信息
+    ElNotification({
+      type: "error",
+      message: (error as Error).message,
+    });
+  }
+};
 </script>
 
 <style scoped lang="scss">
@@ -48,7 +92,7 @@ const loginForm = reactive({
   .login_form {
     position: relative;
     top: 30vh;
-    width: 80%;
+    width: 60%;
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.4);
     border-radius: 8px;
@@ -63,6 +107,8 @@ const loginForm = reactive({
       .login_btn {
         width: 100%;
         --el-button-bg-color: #303122;
+        --el-button-active-bg-color: #303122;
+        --el-button-active-border-color: #303122;
         --el-button-border-color: #303122;
         --el-button-hover-bg-color: #73767a;
         --el-button-hover-border-color: #73767a;
