@@ -42,6 +42,7 @@ import { reactive, ref } from "vue";
 import useUserStore from "@/store/modules/user.ts";
 import { useRouter } from "vue-router";
 import { ElNotification } from "element-plus";
+import { getTime } from "@/utils/time.ts";
 
 const useStore = useUserStore();
 const $router = useRouter();
@@ -68,6 +69,7 @@ const login = async () => {
     ElNotification({
       type: "success",
       message: "登录成功",
+      title: `${getTime()}好`,
     });
     // 按钮加载效果关闭
     loading.value = false;
