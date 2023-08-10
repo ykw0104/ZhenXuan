@@ -3,12 +3,15 @@ import { reqLogin } from "@/api/user";
 import type { loginForm, loginResponseData } from "@/api/user/type";
 import type { UserState } from "./types/types.ts";
 import { SET_TOKEN, GET_TOKEN } from "@/utils/token.ts";
+import { constantRoute } from "@/router/routes.ts";
 
 const useUserStore = defineStore("User", {
   state: (): UserState => {
     return {
-      // token: localStorage.getItem("TOKEN"),
+      // 用户token
       token: GET_TOKEN(),
+      // 菜单路由
+      menuRoutes: constantRoute,
     };
   },
 
