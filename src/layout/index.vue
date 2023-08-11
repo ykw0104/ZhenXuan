@@ -15,7 +15,9 @@
     <div class="layout_tabbar">2222</div>
 
     <!-- 主体 -->
-    <div class="layout_main">333</div>
+    <div class="layout_main">
+      <RouterView />
+    </div>
   </div>
 </template>
 
