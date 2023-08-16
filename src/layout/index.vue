@@ -16,7 +16,7 @@
 
     <!-- 主体 -->
     <div class="layout_main">
-      <RouterView />
+      <Main />
     </div>
   </div>
 </template>
@@ -24,6 +24,7 @@
 <script setup lang="ts">
 import Logo from "./logo/index.vue";
 import Menu from "./menu/index.vue";
+import Main from "./main/index.vue";
 import useUserStore from "@/store/modules/user";
 
 const userStore = useUserStore();
