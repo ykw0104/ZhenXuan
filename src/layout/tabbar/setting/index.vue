@@ -27,4 +27,9 @@
 import { Refresh, FullScreen, Setting } from "@element-plus/icons-vue";
 </script>
 
+<script lang="ts">
+export default {
+  name: "Setting",
+};
+</script>
 <style scoped lang="scss"></style>

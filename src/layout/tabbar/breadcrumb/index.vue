@@ -1,6 +1,6 @@
 <template>
-  <el-icon style="margin-right: 10px">
-    <Expand />
+  <el-icon style="margin-right: 10px" @click="changeIcon">
+    <component :is="layoutSettingStore.fold ? `Fold` : `Expand`"></component>
   </el-icon>
 
   <el-breadcrumb :separator-icon="ArrowRight">
@@ -11,6 +11,20 @@
 
 <script setup lang="ts">
 import { ArrowRight } from "@element-plus/icons-vue";
+import { ref } from "vue";
+import useLayoutSettingStore from "@/store/modules/setting.ts";
+
+const layoutSettingStore = useLayoutSettingStore();
+
+const changeIcon = () => {
+  layoutSettingStore.fold = !layoutSettingStore.fold;
+};
+</script>
+
+<script lang="ts">
+export default {
+  name: "Breadcrumb",
+};
 </script>
 
 <style scoped lang="scss"></style>
