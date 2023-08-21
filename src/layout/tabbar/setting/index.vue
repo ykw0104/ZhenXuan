@@ -1,6 +1,6 @@
 <template>
   <el-button :icon="Refresh" circle size="small" @click="updateRefresh" />
-  <el-button :icon="FullScreen" circle size="small" />
+  <el-button :icon="FullScreen" circle size="small" @click="fullScreen" />
   <el-button :icon="Setting" circle size="small" />
 
   <img
@@ -30,6 +30,18 @@ import useLayoutSettingStore from "@/store/modules/setting.ts";
 const layoutSettingStore = useLayoutSettingStore();
 const updateRefresh = () => {
   layoutSettingStore.refresh = !layoutSettingStore.refresh;
+};
+
+const fullScreen = () => {
+  //全屏属性(全屏:true / 不是全屏:false)
+  const full = document.fullscreenElement;
+  if (!full) {
+    // 全屏
+    document.documentElement.requestFullscreen();
+  } else {
+    // 退出全屏
+    document.exitFullscreen();
+  }
 };
 </script>
 
