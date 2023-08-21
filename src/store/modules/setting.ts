@@ -6,6 +6,8 @@ const useLayoutSettingStore = defineStore("LayoutSetting", {
     return {
       // 菜单折叠 或 收起
       fold: false,
+      // tabbar的刷新效果
+      refresh: false,
     };
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <el-button :icon="Refresh" circle size="small" />
+  <el-button :icon="Refresh" circle size="small" @click="updateRefresh" />
   <el-button :icon="FullScreen" circle size="small" />
   <el-button :icon="Setting" circle size="small" />
 
@@ -25,6 +25,12 @@
 
 <script setup lang="ts">
 import { Refresh, FullScreen, Setting } from "@element-plus/icons-vue";
+import useLayoutSettingStore from "@/store/modules/setting.ts";
+
+const layoutSettingStore = useLayoutSettingStore();
+const updateRefresh = () => {
+  layoutSettingStore.refresh = !layoutSettingStore.refresh;
+};
 </script>
 
 <script lang="ts">
