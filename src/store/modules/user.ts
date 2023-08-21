@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { reqLogin } from "@/api/user";
+import { reqLogin, reqUserInfo } from "@/api/user";
 import type { loginForm, loginResponseData } from "@/api/user/type";
 import type { UserState } from "./types/types.ts";
 import { SET_TOKEN, GET_TOKEN } from "@/utils/token.ts";
@@ -12,6 +12,9 @@ const useUserStore = defineStore("User", {
       token: GET_TOKEN(),
       // 菜单路由
       menuRoutes: constantRoute,
+
+      username: "",
+      avatar: "",
     };
   },
 
@@ -29,6 +32,15 @@ const useUserStore = defineStore("User", {
         return "ok";
       } else {
         return Promise.reject(new Error(result.data.message));
+      }
+    },
+
+    // 获取用户信息
+    async userInfo() {
+      const result = await reqUserInfo();
+      if (result.code === 200) {
+        this.username = result.data.checkUser.username;
+        this.avatar = result.data.checkUser.avatar;
       }
     },
   },

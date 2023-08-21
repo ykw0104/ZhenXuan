@@ -1,6 +1,7 @@
 //封装axios
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import useUserStore from "@/store/modules/user";
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 配置文件在 .env.development等三个文件下
@@ -8,6 +9,12 @@ const request = axios.create({
 });
 
 request.interceptors.request.use((config) => {
+  // 获取用户相token
+  const userStore = useUserStore();
+  if (userStore.token) {
+    config.headers.token = userStore.token;
+  }
+
   return config;
 });
 

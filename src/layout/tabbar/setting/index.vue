@@ -4,13 +4,13 @@
   <el-button :icon="Setting" circle size="small" />
 
   <img
-    src="../../../public/logo.jpeg"
-    style="width: 24px; height: 24px; margin: 0 10px"
+    :src="userStore.avatar"
+    style="width: 24px; height: 24px; margin: 0 10px; border-radius: 10%"
   />
 
   <el-dropdown>
     <span class="el-dropdown-link">
-      admin
+      {{ userStore.username }}
       <el-icon class="el-icon--right">
         <arrow-down />
       </el-icon>
@@ -26,6 +26,10 @@
 <script setup lang="ts">
 import { Refresh, FullScreen, Setting } from "@element-plus/icons-vue";
 import useLayoutSettingStore from "@/store/modules/setting.ts";
+import useUserStore from "@/store/modules/user";
+
+// 用户信息
+const userStore = useUserStore();
 
 const layoutSettingStore = useLayoutSettingStore();
 const updateRefresh = () => {
