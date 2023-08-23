@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { reqLogin, reqUserInfo } from "@/api/user";
 import type { loginForm, loginResponseData } from "@/api/user/type";
 import type { UserState } from "./types/types.ts";
-import { SET_TOKEN, GET_TOKEN } from "@/utils/token.ts";
+import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from "@/utils/token.ts";
 import { constantRoute } from "@/router/routes.ts";
 
 const useUserStore = defineStore("User", {
@@ -42,6 +42,16 @@ const useUserStore = defineStore("User", {
         this.username = result.data.checkUser.username;
         this.avatar = result.data.checkUser.avatar;
       }
+    },
+
+    // 退出登录
+    userLogout() {
+      // 没有退出登录接口
+      // 清空
+      this.token = "";
+      this.username = "";
+      this.avatar = "";
+      REMOVE_TOKEN();
     },
   },
 

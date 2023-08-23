@@ -45,12 +45,13 @@
 import { User, Lock } from "@element-plus/icons-vue";
 import { reactive, ref } from "vue";
 import useUserStore from "@/store/modules/user.ts";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { ElNotification } from "element-plus";
 import { getTime } from "@/utils/time.ts";
 
 const useStore = useUserStore();
 const $router = useRouter();
+const $route = useRoute();
 
 // 登录按钮的加载
 const loading = ref(false);
@@ -74,8 +75,11 @@ const login = async () => {
 
   try {
     await useStore.userLogin(loginForm);
-    //跳转到首页
-    $router.push("/");
+
+    const redirect: any = $route.query.redirect;
+    //跳转页面
+    $router.push({ path: redirect || "/" });
+
     // 登录成功信息
     ElNotification({
       type: "success",
