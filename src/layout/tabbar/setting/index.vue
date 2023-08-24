@@ -54,10 +54,10 @@ const fullScreen = () => {
 };
 
 // 退出登录
-const logout = () => {
+const logout = async () => {
   // 1. 向服务器发请求[退出登录接口]
   // 2. 清空数据[token | username | avatar]
-  userStore.userLogout();
+  await userStore.userLogout();
   // 3. 跳转到登录页
   $router.push({ path: "/login", query: { redirect: $route.path } });
 };

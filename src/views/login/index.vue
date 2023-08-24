@@ -62,7 +62,7 @@ const loginForms = ref();
 // 登录信息
 const loginForm = reactive({
   username: "admin",
-  password: "111111",
+  password: "atguigu123",
 });
 
 // 登录

@@ -45,6 +45,7 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     },
+
     //代理跨域
     server: {
       proxy: {
