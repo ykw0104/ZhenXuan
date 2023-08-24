@@ -31,6 +31,9 @@ app.use(ElementPlus, {
 //  注册全局组件
 app.use(globalComponent);
 app.use(router);
+// 路由守卫
+import "./permisstion.ts";
+
 app.use(pinia);
 
 app.mount("#app");
