@@ -3,6 +3,11 @@ import { reqLogin, reqUserInfo, reqLogout } from "@/api/user";
 import type { UserState } from "./types/types.ts";
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from "@/utils/token.ts";
 import { constantRoute } from "@/router/routes.ts";
+import type {
+  loginFormData,
+  loginResponseData,
+  userInfoReponseData,
+} from "@/api/user/type.ts";
 
 const useUserStore = defineStore("User", {
   state: (): UserState => {
@@ -19,8 +24,8 @@ const useUserStore = defineStore("User", {
 
   actions: {
     // 登录
-    async userLogin(data: any) {
-      const result: any = await reqLogin(data);
+    async userLogin(data: loginFormData) {
+      const result: loginResponseData = await reqLogin(data);
       if (result.code === 200) {
         // 登录成功, 存储token
         this.token = result.data as string;
@@ -36,7 +41,7 @@ const useUserStore = defineStore("User", {
 
     // 获取用户信息
     async userInfo() {
-      const result = await reqUserInfo();
+      const result: userInfoReponseData = await reqUserInfo();
       if (result.code === 200) {
         this.username = result.data.name;
         this.avatar = result.data.avatar;
@@ -49,7 +54,7 @@ const useUserStore = defineStore("User", {
 
     // 退出登录
     async userLogout() {
-      const result = await reqLogout();
+      const result: any = await reqLogout();
       if (result.code === 200) {
         // 清空
         this.token = "";
