@@ -56,5 +56,6 @@ module.exports = {
     "vue/attribute-hyphenation": "off", // 对模板中的自定义组件强制执行属性命名样式
     "vue/no-unused-vars": "off",
     "vue/no-reserved-component-names": "off",
+    "vue/valid-attribute-name": "off",
   },
 };
