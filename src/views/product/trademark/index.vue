@@ -23,7 +23,7 @@
         </template>
       </el-table-column>
       <el-table-column label="品牌操作">
-        <template #="{ row }">
+        <template>
           <el-button type="primary" size="small" icon="Edit"></el-button>
           <el-button type="primary" size="small" icon="Delete"></el-button>
         </template>

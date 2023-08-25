@@ -161,4 +161,36 @@ export const constantRoute = [
       },
     ],
   },
+
+  // Test
+  {
+    path: "/test",
+    name: "Test",
+    component: () => import("@/layout/index.vue"),
+    meta: {
+      title: "Test",
+      icon: "Collection",
+    },
+    redirect: "/test/t01",
+    children: [
+      {
+        path: "/test/t01",
+        component: () => import("@/views/test/t01/t01.vue"),
+        name: "t01",
+        meta: {
+          title: "t01",
+          icon: "Tickets",
+        },
+      },
+      {
+        path: "/test/t02",
+        component: () => import("@/views/test/t02/t02.vue"),
+        name: "t02",
+        meta: {
+          title: "t02",
+          icon: "Tickets",
+        },
+      },
+    ],
+  },
 ];
