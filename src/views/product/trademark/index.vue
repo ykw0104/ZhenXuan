@@ -37,6 +37,8 @@
       :page-sizes="[3, 5, 7, 9]"
       layout="prev, pager, next, jumper,->,sizes,total"
       :total="total"
+      @current-change="getHasTrademark"
+      @size-change="changePageNo"
     />
   </div>
 </template>
@@ -54,7 +56,11 @@ const limit = ref<number>(3);
 const total = ref<number>(0);
 const trademarkArr = ref<Records>([]);
 
-const getHasTrademark = async () => {
+const getHasTrademark = async (pager = 1) => {
+  pageNo.value = pager;
+
+  console.log(pageNo.value, pager);
+
   const result: TradeMarkResponseData = await reqHasTrademark(
     pageNo.value,
     limit.value,
@@ -68,6 +74,11 @@ const getHasTrademark = async () => {
 onMounted(() => {
   getHasTrademark();
 });
+
+// 页码发生变化
+const changePageNo = () => {
+  getHasTrademark();
+};
 </script>
 
 <style scoped lang="scss"></style>
