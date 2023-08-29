@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import type { TradeMarkResponseData } from "./type.ts";
+import type { TradeMarkResponseData, TradeMark } from "./type.ts";
 
 enum API {
   //获取已有品牌接口
@@ -17,3 +17,14 @@ export const reqHasTrademark = (page: number, limit: number) =>
   request.get<any, TradeMarkResponseData>(
     API.TRADEMARK_URL + `${page}/${limit}`,
   );
+
+// 添加/修改品牌
+export const reqAddOrUpdateTrademark = (data: TradeMark) => {
+  if (data.id) {
+    // 修改
+    return request.put<any, any>(API.UPDATETRADEMARK_URL, data);
+  } else {
+    // 添加
+    return request.post<any, any>(API.ADDTRADEMARK_URL, data);
+  }
+};
