@@ -14,11 +14,9 @@
           width="80px"
           align="center"
         />
-        <el-table-column label="品牌名称" prop="tmName">
-          <!-- <template #="{ row }">
-          <pre style="color: #ec2121dc">{{ row.tmName }}</pre>
-        </template> -->
-        </el-table-column>
+
+        <el-table-column label="品牌名称" prop="tmName"></el-table-column>
+
         <el-table-column label="品牌LOGO">
           <template #="{ row }">
             <el-image
@@ -28,14 +26,17 @@
             />
           </template>
         </el-table-column>
+
         <el-table-column label="品牌操作">
           <template #="{ row }">
+            <!-- 编辑 -->
             <el-button
               type="primary"
               size="small"
               icon="Edit"
-              @click="updateTrademark"
+              @click="updateTrademark(row)"
             ></el-button>
+            <!-- 删除 -->
             <el-button type="primary" size="small" icon="Delete"></el-button>
           </template>
         </el-table-column>
@@ -53,7 +54,10 @@
       />
     </el-card>
 
-    <el-dialog v-model="dialogFormVisible" title="添加品牌">
+    <el-dialog
+      v-model="dialogFormVisible"
+      :title="trademarkParams.id ? '修改品牌' : '添加品牌'"
+    >
       <el-form ref="formRef" style="width: 80%">
         <!-- 添加商品 -->
         <el-form-item label="品牌名称" label-width="80px">
@@ -147,13 +151,19 @@ const changePageNo = () => {
 const addTrademark = () => {
   dialogFormVisible.value = true;
   // 清空表数据
+  trademarkParams.id = 0;
   trademarkParams.tmName = "";
   trademarkParams.logoUrl = "";
 };
 
 // 修改品牌
-const updateTrademark = () => {
+const updateTrademark = (row: TradeMark) => {
   dialogFormVisible.value = true;
+
+  // trademarkParams.tmName = row.tmName;
+  // trademarkParams.logoUrl = row.logoUrl;
+  // trademarkParams.id = row.id;
+  Object.assign(trademarkParams, row);
 };
 
 // 取消
@@ -163,18 +173,18 @@ const cancel = () => {
 
 // 确定
 const confirm = async () => {
-  // 添加商品请求
+  // 请求 添加/修改商品
   const result: any = await reqAddOrUpdateTrademark(trademarkParams);
 
   if (result.code === 200) {
     dialogFormVisible.value = false;
-    ElMessage.success("添加成功");
+    ElMessage.success(trademarkParams.id ? "修改品牌成功" : "添加品牌成功");
 
     // 重新获取数据
-    getHasTrademark();
+    getHasTrademark(trademarkParams.id ? pageNo.value : 1);
   } else {
     dialogFormVisible.value = false;
-    ElMessage.error("添加失败");
+    ElMessage.error(trademarkParams.id ? "修改品牌失败" : "添加品牌失败");
   }
 };
 
@@ -204,10 +214,7 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = (rawFile) => {
 };
 
 //图片上传成功钩子
-const handleAvatarSuccess: UploadProps["onSuccess"] = (
-  response,
-  uploadFile,
-) => {
+const handleAvatarSuccess: UploadProps["onSuccess"] = (response) => {
   //response:即为当前这次上传图片post请求服务器返回的数据
   //收集上传图片的地址,添加一个新的品牌的时候带给服务器
   trademarkParams.logoUrl = response.data;
