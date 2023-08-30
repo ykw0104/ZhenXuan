@@ -37,7 +37,17 @@
               @click="updateTrademark(row)"
             ></el-button>
             <!-- 删除 -->
-            <el-button type="primary" size="small" icon="Delete"></el-button>
+            <el-popconfirm
+              :title="`确认删除${row.tmName}?`"
+              width="250px"
+              icon="Delete"
+              icon-color="#F56C6C"
+              @confirm="removeTrademark(row.id)"
+            >
+              <template #reference>
+                <el-button type="danger" icon="Delete" size="small"></el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -109,6 +119,7 @@ import { ElMessage } from "element-plus";
 import {
   reqHasTrademark,
   reqAddOrUpdateTrademark,
+  reqDeleteTrademark,
 } from "@/api/product/trademark/index.ts";
 import type {
   Records,
@@ -261,6 +272,19 @@ const handleAvatarSuccess: UploadProps["onSuccess"] = (response) => {
   trademarkParams.logoUrl = response.data;
   //图片上传成功,清除掉对应图片校验结果
   formRef.value?.clearValidate("logoUrl");
+};
+
+// 删除品牌
+const removeTrademark = async (id: number) => {
+  const result = await reqDeleteTrademark(id);
+  if (result.code === 200) {
+    ElMessage.success("删除成功");
+    getHasTrademark(
+      trademarkArr.value.length > 1 ? pageNo.value : pageNo.value - 1,
+    );
+  } else {
+    ElMessage.error("删除失败");
+  }
 };
 </script>
 

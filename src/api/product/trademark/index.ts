@@ -28,3 +28,7 @@ export const reqAddOrUpdateTrademark = (data: TradeMark) => {
     return request.post<any, any>(API.ADDTRADEMARK_URL, data);
   }
 };
+
+// 删除品牌
+export const reqDeleteTrademark = (id: number) =>
+  request.delete<any, any>(API.DELETE_URL + id);
