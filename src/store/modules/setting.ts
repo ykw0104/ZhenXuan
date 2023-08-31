@@ -5,7 +5,7 @@ const useLayoutSettingStore = defineStore("LayoutSetting", {
   state: () => {
     return {
       // 菜单折叠 或 收起
-      fold: false,
+      fold: true,
       // tabbar的刷新效果
       refresh: false,
     };

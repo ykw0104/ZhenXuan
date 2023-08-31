@@ -4,7 +4,7 @@ export interface ResponseData {
   ok: boolean;
 }
 
-export interface CagegoryObj {
+export interface CategoryObj {
   id: number | string;
   name: string;
   category1Id?: number;
@@ -12,5 +12,5 @@ export interface CagegoryObj {
 }
 
 export interface CategoryResponseData extends ResponseData {
-  data: CagegoryObj[];
+  data: CategoryObj[];
 }
