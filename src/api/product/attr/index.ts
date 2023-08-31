@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import type { CategoryResponseData } from "./type.ts";
+import type { CategoryResponseData, AttrResponseData } from "./type.ts";
 
 enum API {
   //获取一级分类接口地址
@@ -26,3 +26,13 @@ export const reqC2 = (category1Id: number | string) =>
 // 获取三级分类
 export const reqC3 = (category2Id: number | string) =>
   request.get<any, CategoryResponseData>(API.C3_URL + category2Id);
+
+// 属性与属性值
+export const reqAttr = (
+  category1Id: string | number,
+  category2Id: string | number,
+  category3Id: string | number,
+) =>
+  request.get<any, AttrResponseData>(
+    API.ATTR_URL + `${category1Id}/${category2Id}/${category3Id}`,
+  );
