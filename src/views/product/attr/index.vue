@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- 三级分类 -->
+    <!-- 分类组件-->
     <Category />
 
     <!-- 内容 -->
@@ -23,5 +23,10 @@
 </template>
 
 <script setup lang="ts"></script>
+<script lang="ts">
+export default {
+  name: "AttrIndex",
+};
+</script>
 
 <style scoped lang="scss"></style>

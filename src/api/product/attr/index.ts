@@ -1,4 +1,5 @@
 import request from "@/utils/request";
+import type { CategoryResponseData } from "./type.ts";
 
 enum API {
   //获取一级分类接口地址
@@ -14,3 +15,14 @@ enum API {
   //删除某一个已有的属性
   DELETEATTR_URL = "/admin/product/deleteAttr/",
 }
+
+// 获取一级分类
+export const reqC1 = () => request.get<any, CategoryResponseData>(API.C1_URL);
+
+// 获取二级分类
+export const reqC2 = (category1Id: number) =>
+  request.get<any, CategoryResponseData>(API.C2_URL + category1Id);
+
+// 获取三级分类
+export const reqC3 = (category2Id: number) =>
+  request.get<any, CategoryResponseData>(API.C3_URL + category2Id);

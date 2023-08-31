@@ -290,7 +290,7 @@ const removeTrademark = async (id: number) => {
 
 <script lang="ts">
 export default {
-  name: "Trademark",
+  name: "TrademarkIndex",
 };
 </script>
 
