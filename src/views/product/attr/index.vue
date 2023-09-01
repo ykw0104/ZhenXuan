@@ -1,68 +1,132 @@
 <template>
   <div>
     <!-- 分类组件-->
-    <Category />
+    <Category :scene="scene" />
 
     <!-- 内容 -->
     <el-card style="margin: 10px 0">
-      <el-button type="primary" icon="Plus" :disabled="!categoryStore.c3Id">
-        添加属性
-      </el-button>
+      <div v-show="scene === 0">
+        <el-button
+          type="primary"
+          icon="Plus"
+          :disabled="!categoryStore.c3Id"
+          @click="addAttr"
+        >
+          添加属性
+        </el-button>
 
-      <el-table :data="attrArr" border style="margin: 10px 0">
-        <el-table-column
-          label="序号"
-          type="index"
-          align="center"
-          width="80px"
-        ></el-table-column>
+        <el-table :data="attrArr" border style="margin: 10px 0">
+          <el-table-column
+            label="序号"
+            type="index"
+            align="center"
+            width="80px"
+          ></el-table-column>
 
-        <el-table-column
-          label="属性名称"
-          width="120px"
-          prop="attrName"
-        ></el-table-column>
+          <el-table-column
+            label="属性名称"
+            width="120px"
+            prop="attrName"
+          ></el-table-column>
 
-        <el-table-column label="属性值名称">
-          <template #="{ row }">
-            <el-tag
-              v-for="item in row.attrValueList"
-              :key="item.id"
-              style="margin: 5px"
-            >
-              {{ item.valueName }}
-            </el-tag>
-          </template>
-        </el-table-column>
+          <el-table-column label="属性值名称">
+            <template #="{ row }">
+              <el-tag
+                v-for="item in row.attrValueList"
+                :key="item.id"
+                style="margin: 5px"
+              >
+                {{ item.valueName }}
+              </el-tag>
+            </template>
+          </el-table-column>
 
-        <el-table-column label="操作" width="120px">
-          <template #="{ row }">
-            <el-button type="primary" size="small" icon="Edit"></el-button>
-            <el-button type="danger" size="small" icon="Delete"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column label="操作" width="120px">
+            <template #="{ row }">
+              <el-button
+                type="primary"
+                size="small"
+                icon="Edit"
+                @click="updateAttr"
+              ></el-button>
+              <el-button type="danger" size="small" icon="Delete"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <div v-show="scene === 1">
+        <el-form inline>
+          <el-form-item label="属性名称" width="30px">
+            <el-input
+              v-model="attrParams.attrName"
+              placeholder="请输入属性名称"
+            ></el-input>
+          </el-form-item>
+        </el-form>
+
+        <el-button
+          type="primary"
+          size="default"
+          icon="Plus"
+          :disabled="!attrParams.attrName"
+          @click="addAttrValue"
+        >
+          添加属性
+        </el-button>
+        <el-button size="default" @click="cancel">取消</el-button>
+
+        <el-table
+          :data="attrParams.attrValueList"
+          border
+          style="margin: 10px 0"
+        >
+          <el-table-column
+            label="序号"
+            width="80px"
+            type="index"
+            align="center"
+          ></el-table-column>
+          <el-table-column label="属性值名称">
+            <template #="{ row }">
+              <el-input
+                v-model="row.valueName"
+                placeholder="输入属性值名称"
+              ></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="属性值操作"></el-table-column>
+        </el-table>
+
+        <el-button type="primary" size="default" icon="Crop" @click="save">
+          保存
+        </el-button>
+        <el-button size="default" @click="cancel">取消</el-button>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
 import useCategoryStore from "@/store/modules/category";
-import { ref, watch } from "vue";
-import { reqAttr } from "@/api/product/attr";
+import { ref, watch, reactive } from "vue";
+import { reqAttr, reqAddOrUpdateAttr } from "@/api/product/attr";
 import type { AttrResponseData, Attr } from "@/api/product/attr/type";
 import { ElMessage } from "element-plus";
 
-const categoryStore = useCategoryStore();
-watch(
-  () => categoryStore.c3Id,
-  () => {
-    attrArr.value = [];
-    categoryStore.c3Id && getAttr();
-  },
-);
-
+// 卡片内容的切换
+const scene = ref<number>(0);
 const attrArr = ref<Attr[]>([]);
+const categoryStore = useCategoryStore();
+// 请求的添加属性
+const attrParams = reactive<Attr>({
+  attrName: "",
+  attrValueList: [],
+  categoryId: "",
+  categoryLevel: 3,
+});
+
+// 获取属性/属性值
 const getAttr = () => {
   const { c1Id, c2Id, c3Id } = categoryStore;
 
@@ -74,6 +138,57 @@ const getAttr = () => {
     .catch((error) => {
       ElMessage.error(error);
     });
+};
+
+watch(
+  () => categoryStore.c3Id,
+  () => {
+    attrArr.value = [];
+    categoryStore.c3Id && getAttr();
+  },
+  {
+    immediate: true,
+  },
+);
+
+// 添加属性
+const addAttr = () => {
+  // 初始化和清空数据
+  Object.assign(attrParams, {
+    attrName: "",
+    attrValueList: [],
+    categoryId: categoryStore.c3Id,
+    categoryLevel: 3,
+  });
+
+  scene.value = 1;
+};
+
+// 添加属性值
+const addAttrValue = () => {
+  attrParams.attrValueList.push({ valueName: "" });
+};
+
+// 修改属性
+const updateAttr = () => {
+  scene.value = 1;
+};
+
+// 保存
+const save = async () => {
+  const result: any = await reqAddOrUpdateAttr(attrParams);
+  if (result.code === 200) {
+    scene.value = 0;
+    ElMessage.success(attrParams.id ? "修改成功" : "添加成功");
+    getAttr();
+  } else {
+    ElMessage.error(attrParams.id ? "修改失败" : "添加失败");
+  }
+};
+
+// 取消
+const cancel = () => {
+  scene.value = 0;
 };
 </script>
 

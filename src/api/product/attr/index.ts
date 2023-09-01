@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import type { CategoryResponseData, AttrResponseData } from "./type.ts";
+import type { CategoryResponseData, AttrResponseData, Attr } from "./type.ts";
 
 enum API {
   //获取一级分类接口地址
@@ -36,3 +36,7 @@ export const reqAttr = (
   request.get<any, AttrResponseData>(
     API.ATTR_URL + `${category1Id}/${category2Id}/${category3Id}`,
   );
+
+// 新增或修改属性
+export const reqAddOrUpdateAttr = (data: Attr) =>
+  request.post<any, any>(API.ADDORUPDATEATTR_URL, data);
