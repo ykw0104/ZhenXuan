@@ -88,17 +88,27 @@
             align="center"
           ></el-table-column>
           <el-table-column label="属性值名称">
-            <template #="{ row }">
+            <template #="{ row, $index }">
               <el-input
+                v-if="row.flag"
                 v-model="row.valueName"
                 placeholder="输入属性值名称"
+                size="small"
+                @blur="toLook(row, $index)"
               ></el-input>
+              <div v-else @click="toEdit(row)">{{ row.valueName }}</div>
             </template>
           </el-table-column>
           <el-table-column label="属性值操作"></el-table-column>
         </el-table>
 
-        <el-button type="primary" size="default" icon="Crop" @click="save">
+        <el-button
+          type="primary"
+          size="default"
+          icon="Crop"
+          :disabled="attrParams.attrValueList.length === 0"
+          @click="save"
+        >
           保存
         </el-button>
         <el-button size="default" @click="cancel">取消</el-button>
@@ -111,7 +121,11 @@
 import useCategoryStore from "@/store/modules/category";
 import { ref, watch, reactive } from "vue";
 import { reqAttr, reqAddOrUpdateAttr } from "@/api/product/attr";
-import type { AttrResponseData, Attr } from "@/api/product/attr/type";
+import type {
+  AttrResponseData,
+  Attr,
+  AttrValue,
+} from "@/api/product/attr/type";
 import { ElMessage } from "element-plus";
 
 // 卡片内容的切换
@@ -166,7 +180,7 @@ const addAttr = () => {
 
 // 添加属性值
 const addAttrValue = () => {
-  attrParams.attrValueList.push({ valueName: "" });
+  attrParams.attrValueList.push({ valueName: "", flag: true });
 };
 
 // 修改属性
@@ -189,6 +203,35 @@ const save = async () => {
 // 取消
 const cancel = () => {
   scene.value = 0;
+};
+
+// 编辑 - > 查看
+const toLook = (row: AttrValue, $index: number) => {
+  // 不能为空
+  if (row.valueName.trim() === "") {
+    attrParams.attrValueList.splice($index, 1);
+    ElMessage.warning("属性值不能为空");
+    return;
+  }
+
+  // 不能重复
+  const repeat = attrParams.attrValueList.find((item) => {
+    if (item !== row) {
+      return item.valueName === row.valueName;
+    }
+  });
+  if (repeat) {
+    attrParams.attrValueList.splice($index, 1);
+    ElMessage.warning("属性值重复");
+    return;
+  }
+
+  row.flag = false;
+};
+
+// 查看 -> 编辑
+const toEdit = (row: AttrValue) => {
+  row.flag = true;
 };
 </script>
 
