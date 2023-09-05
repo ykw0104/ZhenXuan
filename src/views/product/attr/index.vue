@@ -43,13 +43,27 @@
 
           <el-table-column label="操作" width="120px">
             <template #="{ row }">
+              <!-- 更新属性 -->
               <el-button
                 type="primary"
                 size="small"
                 icon="Edit"
-                @click="updateAttr"
+                @click="updateAttr(row)"
               ></el-button>
-              <el-button type="danger" size="small" icon="Delete"></el-button>
+              <!-- 删除属性 -->
+              <el-popconfirm
+                :title="`确认删除${row.attrName}吗?`"
+                width="200px"
+                @confirm="deleteAttr(row.id)"
+              >
+                <template #reference>
+                  <el-button
+                    type="danger"
+                    size="small"
+                    icon="Delete"
+                  ></el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -130,7 +144,7 @@
 <script setup lang="ts">
 import useCategoryStore from "@/store/modules/category";
 import { ref, watch, reactive, nextTick } from "vue";
-import { reqAttr, reqAddOrUpdateAttr } from "@/api/product/attr";
+import { reqAttr, reqAddOrUpdateAttr, reqRemoveAttr } from "@/api/product/attr";
 import type {
   AttrResponseData,
   Attr,
@@ -201,8 +215,10 @@ const addAttrValue = () => {
 };
 
 // 修改属性
-const updateAttr = () => {
+const updateAttr = (row: Attr) => {
   scene.value = 1;
+
+  Object.assign(attrParams, JSON.parse(JSON.stringify(row)));
 };
 
 // 保存
@@ -252,6 +268,17 @@ const toEdit = (row: AttrValue, $index: number) => {
   nextTick(() => {
     inputArr.value[$index].focus();
   });
+};
+
+// 删除属性
+const deleteAttr = async (attrId: number) => {
+  const result: any = await reqRemoveAttr(attrId);
+  if (result.code === 200) {
+    ElMessage.success("删除成功");
+    getAttr();
+  } else {
+    ElMessage.error("删除失败");
+  }
 };
 </script>
 
