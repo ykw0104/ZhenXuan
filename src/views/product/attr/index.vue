@@ -90,16 +90,26 @@
           <el-table-column label="属性值名称">
             <template #="{ row, $index }">
               <el-input
+                :ref="(vc: any) => (inputArr[$index] = vc)"
                 v-if="row.flag"
                 v-model="row.valueName"
                 placeholder="输入属性值名称"
                 size="small"
                 @blur="toLook(row, $index)"
               ></el-input>
-              <div v-else @click="toEdit(row)">{{ row.valueName }}</div>
+              <div v-else @click="toEdit(row, $index)">{{ row.valueName }}</div>
             </template>
           </el-table-column>
-          <el-table-column label="属性值操作"></el-table-column>
+          <el-table-column label="属性值操作">
+            <template #="{ row, $index }">
+              <el-button
+                type="danger"
+                size="small"
+                icon="Delete"
+                @click="attrParams.attrValueList.splice($index, 1)"
+              ></el-button>
+            </template>
+          </el-table-column>
         </el-table>
 
         <el-button
@@ -119,7 +129,7 @@
 
 <script setup lang="ts">
 import useCategoryStore from "@/store/modules/category";
-import { ref, watch, reactive } from "vue";
+import { ref, watch, reactive, nextTick } from "vue";
 import { reqAttr, reqAddOrUpdateAttr } from "@/api/product/attr";
 import type {
   AttrResponseData,
@@ -139,6 +149,8 @@ const attrParams = reactive<Attr>({
   categoryId: "",
   categoryLevel: 3,
 });
+// 获取input组件实例
+const inputArr = ref<any>([]);
 
 // 获取属性/属性值
 const getAttr = () => {
@@ -181,6 +193,11 @@ const addAttr = () => {
 // 添加属性值
 const addAttrValue = () => {
   attrParams.attrValueList.push({ valueName: "", flag: true });
+
+  // 最后的input聚焦
+  nextTick(() => {
+    inputArr.value[attrParams.attrValueList.length - 1].focus();
+  });
 };
 
 // 修改属性
@@ -230,8 +247,11 @@ const toLook = (row: AttrValue, $index: number) => {
 };
 
 // 查看 -> 编辑
-const toEdit = (row: AttrValue) => {
+const toEdit = (row: AttrValue, $index: number) => {
   row.flag = true;
+  nextTick(() => {
+    inputArr.value[$index].focus();
+  });
 };
 </script>
 
