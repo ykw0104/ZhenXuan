@@ -143,7 +143,7 @@
 
 <script setup lang="ts">
 import useCategoryStore from "@/store/modules/category";
-import { ref, watch, reactive, nextTick } from "vue";
+import { ref, watch, reactive, nextTick, onBeforeUnmount } from "vue";
 import { reqAttr, reqAddOrUpdateAttr, reqRemoveAttr } from "@/api/product/attr";
 import type {
   AttrResponseData,
@@ -280,6 +280,10 @@ const deleteAttr = async (attrId: number) => {
     ElMessage.error("删除失败");
   }
 };
+
+onBeforeUnmount(() => {
+  categoryStore.$reset();
+});
 </script>
 
 <script lang="ts">
