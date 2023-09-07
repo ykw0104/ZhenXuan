@@ -1,4 +1,5 @@
 import request from "@/utils/request";
+import type { HasSpuResponseData } from "./type.ts";
 
 enum API {
   //获取已有的SPU的数据
@@ -22,3 +23,13 @@ enum API {
   //删除已有的SPU
   REMOVESPU_URL = "/admin/product/deleteSpu/",
 }
+
+// 获取spu
+export const reqHasSpu = (
+  page: number,
+  limit: number,
+  category3Id: string | number,
+) =>
+  request.get<any, HasSpuResponseData>(
+    API.HASSPU_URL + `${page}/${limit}/?category3Id=${category3Id}`,
+  );
