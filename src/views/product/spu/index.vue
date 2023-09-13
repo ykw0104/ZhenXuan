@@ -147,7 +147,7 @@ const addSpu = () => {
 const updateSpu = (row: SpuData) => {
   scene.value = 1;
 
-  // 调用子组件方法
+  // 调用子组件方法, 初始化SPU数据
   spu.value.iniHasSpuData(row);
 };
 

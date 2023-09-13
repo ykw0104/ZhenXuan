@@ -1,33 +1,50 @@
 <template>
   <el-form label-width="100px">
     <el-form-item label="SPU名称">
-      <el-input placeholder="请输入SPU名称"></el-input>
+      <el-input
+        v-model="spuParams.spuName"
+        placeholder="请输入SPU名称"
+      ></el-input>
     </el-form-item>
 
     <el-form-item label="SPU品牌">
-      <el-select>
-        <el-option label="1" value="1"></el-option>
-        <el-option label="2" value="2"></el-option>
+      <el-select v-model="spuParams.tmId">
+        <el-option
+          v-for="item in allTradeMark"
+          :key="item.id"
+          :label="item.tmName"
+          :value="item.id"
+        ></el-option>
       </el-select>
     </el-form-item>
 
     <el-form-item label="SPU描述">
-      <el-input type="textarea" placeholder="请输入SPU的描述"></el-input>
+      <el-input
+        v-model="spuParams.description"
+        type="textarea"
+        placeholder="请输入SPU的描述"
+      ></el-input>
     </el-form-item>
 
     <el-form-item label="SPU图片">
       <el-upload
-        v-model:file-list="fileList"
-        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+        v-model:file-list="imgList"
+        action="/api/admin/product/fileUpload"
         list-type="picture-card"
         :on-preview="handlePictureCardPreview"
         :on-remove="handleRemove"
+        :before-upload="handlerUpload"
       >
         <el-icon><Plus /></el-icon>
       </el-upload>
 
       <el-dialog v-model="dialogVisible">
-        <img w-full :src="dialogImageUrl" alt="Preview Image" />
+        <img
+          w-full
+          :src="dialogImageUrl"
+          alt="Preview Image"
+          style="width: 100%; height: 100%"
+        />
       </el-dialog>
     </el-form-item>
 
@@ -81,6 +98,7 @@ import type {
   SaleAttrResponseData,
   HasSaleAttrResponseData,
 } from "@/api/product/spu/type";
+import { ElMessage } from "element-plus";
 
 const $emit = defineEmits(["changeScene"]);
 
@@ -89,11 +107,26 @@ const imgList = ref<SpuImg[]>([]); // 图片列表
 const saleAttr = ref<SaleAttr[]>([]); // 已有SPU的销售属性
 const allSaleAttr = ref<HasSaleAttr[]>([]); // 所有的销售属性
 
+// SPU
+const spuParams = ref<SpuData>({
+  category3Id: "", //收集三级分类的ID
+  spuName: "", //SPU的名字
+  description: "", //SPU的描述
+  tmId: "", //品牌的ID
+  spuImageList: [],
+  spuSaleAttrList: [],
+});
+
+const dialogVisible = ref<boolean>(false);
+const dialogImageUrl = ref<string>("");
+
 const cancel = () => {
   $emit("changeScene", 0);
 };
 
 const iniHasSpuData = async (spu: SpuData) => {
+  spuParams.value = spu;
+
   // 所有品牌数据
   const result: AllTradeMark = await reqAllTradeMark();
   // 图片列表
@@ -106,9 +139,50 @@ const iniHasSpuData = async (spu: SpuData) => {
   const result3: HasSaleAttrResponseData = await reqAllSaleAttr();
 
   allTradeMark.value = result.data;
-  imgList.value = result1.data;
+  imgList.value = result1.data.map((item) => {
+    return {
+      name: item.imgName,
+      url: item.imgUrl,
+    };
+  });
   saleAttr.value = result2.data;
   allSaleAttr.value = result3.data;
+};
+
+// 照片墙的图片预览
+const handlePictureCardPreview = (file: any) => {
+  dialogImageUrl.value = file.url;
+  dialogVisible.value = true;
+};
+
+// 照片墙的图片删除
+const handleRemove = () => {
+  console.log(11);
+};
+
+// 照片墙上传之前
+const handlerUpload = (file: any) => {
+  if (
+    file.type == "image/png" ||
+    file.type == "image/jpeg" ||
+    file.type == "image/gif"
+  ) {
+    if (file.size / 1024 / 1024 < 3) {
+      return true;
+    } else {
+      ElMessage({
+        type: "error",
+        message: "上传文件务必小于3M",
+      });
+      return false;
+    }
+  } else {
+    ElMessage({
+      type: "error",
+      message: "上传文件务必PNG|JPG|GIF",
+    });
+    return false;
+  }
 };
 
 // 对外暴露
