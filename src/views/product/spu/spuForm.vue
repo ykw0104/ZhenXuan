@@ -49,16 +49,33 @@
     </el-form-item>
 
     <el-form-item label="SPU销售属性">
-      <el-select>
-        <el-option label="1" value="1"></el-option>
-        <el-option label="2" value="2"></el-option>
+      <el-select
+        v-model="saleAttrIdAndValueName"
+        :placeholder="
+          unSelectSaleAttr.length
+            ? `还未选择${unSelectSaleAttr.length}个`
+            : `无`
+        "
+      >
+        <el-option
+          v-for="item in unSelectSaleAttr"
+          :key="item.id"
+          :label="item.name"
+          :value="`${item.id}:${item.name}`"
+        ></el-option>
       </el-select>
 
-      <el-button style="margin-left: 10px" type="primary" icon="Plus">
-        添加属性值
+      <el-button
+        :disabled="!saleAttrIdAndValueName"
+        style="margin-left: 10px"
+        type="primary"
+        icon="Plus"
+        @click="addSaleAttr"
+      >
+        添加属性
       </el-button>
 
-      <el-table style="margin: 10px 0" border>
+      <el-table :data="saleAttr" style="margin: 10px 0" border>
         <el-table-column
           label="序号"
           type="index"
@@ -66,9 +83,39 @@
           width="80px"
         ></el-table-column>
 
-        <el-table-column label="销售属性名字" width="120px"></el-table-column>
-        <el-table-column label="销售属性值"></el-table-column>
-        <el-table-column label="操作" width="120px"></el-table-column>
+        <el-table-column
+          prop="saleAttrName"
+          label="销售属性名字"
+          width="120px"
+        ></el-table-column>
+
+        <!-- 销售属性 -->
+        <el-table-column label="销售属性值">
+          <template #="{ row }">
+            <el-tag
+              v-for="item in row.spuSaleAttrValueList"
+              :key="item.id"
+              style="margin: 0 5px"
+              class="mx-1"
+              closable
+            >
+              {{ item.saleAttrValueName }}
+            </el-tag>
+
+            <el-button type="primary" size="small" icon="Plus"></el-button>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="120px">
+          <template #="{ $index }">
+            <el-button
+              type="danger"
+              size="small"
+              icon="Delete"
+              @click="saleAttr.splice($index, 1)"
+            ></el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-form-item>
 
@@ -81,7 +128,7 @@
 
 <script setup lang="ts">
 import type { SpuData } from "@/api/product/spu/type";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import {
   reqAllTradeMark,
   reqSpuImageList,
@@ -106,8 +153,16 @@ const allTradeMark = ref<Trademark[]>([]); // 所有品牌数据
 const imgList = ref<SpuImg[]>([]); // 图片列表
 const saleAttr = ref<SaleAttr[]>([]); // 已有SPU的销售属性
 const allSaleAttr = ref<HasSaleAttr[]>([]); // 所有的销售属性
+const unSelectSaleAttr = computed(() => {
+  const unSelectArr = allSaleAttr.value.filter((item) => {
+    return saleAttr.value.every((item1) => {
+      return item.name !== item1.saleAttrName;
+    });
+  });
 
-// SPU
+  return unSelectArr;
+}); // 未有的销售属性
+
 const spuParams = ref<SpuData>({
   category3Id: "", //收集三级分类的ID
   spuName: "", //SPU的名字
@@ -115,7 +170,9 @@ const spuParams = ref<SpuData>({
   tmId: "", //品牌的ID
   spuImageList: [],
   spuSaleAttrList: [],
-});
+}); // SPU
+
+const saleAttrIdAndValueName = ref<string>(""); //未选择的销售属性的ID与属性的名字
 
 const dialogVisible = ref<boolean>(false);
 const dialogImageUrl = ref<string>("");
@@ -183,6 +240,26 @@ const handlerUpload = (file: any) => {
     });
     return false;
   }
+};
+
+// 添加销售属性
+const addSaleAttr = () => {
+  /*
+    "baseSaleAttrId": number,
+    "saleAttrName": string,
+    "spuSaleAttrValueList": SpuSaleAttrValueList
+    */
+  const [baseSaleAttrId, saleAttrName] =
+    saleAttrIdAndValueName.value.split(":");
+
+  const newSaleAttr: SaleAttr = {
+    baseSaleAttrId,
+    saleAttrName,
+    spuSaleAttrValueList: [],
+  };
+
+  saleAttr.value.push(newSaleAttr);
+  saleAttrIdAndValueName.value = "";
 };
 
 // 对外暴露
