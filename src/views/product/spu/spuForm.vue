@@ -89,20 +89,35 @@
           width="120px"
         ></el-table-column>
 
-        <!-- 销售属性 -->
         <el-table-column label="销售属性值">
+          <!-- 销售属性 -->
           <template #="{ row }">
             <el-tag
-              v-for="item in row.spuSaleAttrValueList"
+              v-for="(item, index) in row.spuSaleAttrValueList"
               :key="item.id"
               style="margin: 0 5px"
               class="mx-1"
               closable
+              @close="row.spuSaleAttrValueList.splice(index, 1)"
             >
               {{ item.saleAttrValueName }}
             </el-tag>
 
-            <el-button type="primary" size="small" icon="Plus"></el-button>
+            <el-input
+              v-if="row.flag"
+              v-model="row.saleAttrValue"
+              placeholder="请你输入属性值"
+              size="small"
+              style="width: 100px"
+              @blur="toLook(row)"
+            ></el-input>
+            <el-button
+              v-else
+              type="primary"
+              size="small"
+              icon="Plus"
+              @click="toEdit(row)"
+            ></el-button>
           </template>
         </el-table-column>
 
@@ -120,7 +135,9 @@
     </el-form-item>
 
     <el-form-item>
-      <el-button type="primary">保存</el-button>
+      <el-button type="primary" :disabled="!saleAttr.length" @click="save">
+        保存
+      </el-button>
       <el-button @click="cancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -134,8 +151,10 @@ import {
   reqSpuImageList,
   reqSpuHasSaleAttr,
   reqAllSaleAttr,
+  reqAddOrUpdateSpu,
 } from "@/api/product/spu";
 import type {
+  SaleAttrValue,
   HasSaleAttr,
   SaleAttr,
   SpuImg,
@@ -153,6 +172,7 @@ const allTradeMark = ref<Trademark[]>([]); // 所有品牌数据
 const imgList = ref<SpuImg[]>([]); // 图片列表
 const saleAttr = ref<SaleAttr[]>([]); // 已有SPU的销售属性
 const allSaleAttr = ref<HasSaleAttr[]>([]); // 所有的销售属性
+// 未有的销售属性
 const unSelectSaleAttr = computed(() => {
   const unSelectArr = allSaleAttr.value.filter((item) => {
     return saleAttr.value.every((item1) => {
@@ -178,7 +198,7 @@ const dialogVisible = ref<boolean>(false);
 const dialogImageUrl = ref<string>("");
 
 const cancel = () => {
-  $emit("changeScene", 0);
+  $emit("changeScene", { flag: 0, params: "update" });
 };
 
 const iniHasSpuData = async (spu: SpuData) => {
@@ -262,8 +282,97 @@ const addSaleAttr = () => {
   saleAttrIdAndValueName.value = "";
 };
 
+// 属性值按钮的点击
+const toEdit = (row: SaleAttr) => {
+  row.flag = true;
+
+  row.saleAttrValue = "";
+};
+
+// input失去焦点
+const toLook = (row: SaleAttr) => {
+  const { baseSaleAttrId, saleAttrValue } = row;
+
+  const newSaleAttrValue: SaleAttrValue = {
+    baseSaleAttrId,
+    saleAttrValueName: saleAttrValue as string,
+  };
+
+  if (saleAttrValue?.trim() === "") {
+    ElMessage.error("属性值不能为空");
+    return;
+  }
+
+  const repeat = row.spuSaleAttrValueList.find((item) => {
+    return item.saleAttrValueName === saleAttrValue;
+  });
+  if (repeat) {
+    ElMessage.error("属性值重复");
+    return;
+  }
+
+  row.spuSaleAttrValueList.push(newSaleAttrValue);
+
+  row.flag = false;
+};
+
+// 保存按钮
+const save = async () => {
+  // 照片墙
+  spuParams.value.spuImageList = imgList.value.map((item: any) => {
+    return {
+      imgName: item.name,
+      imgUrl: (item.response && item.response.data) || item.url,
+    };
+  });
+
+  // 销售属性的数据
+  spuParams.value.spuSaleAttrList = saleAttr.value;
+
+  const result = await reqAddOrUpdateSpu(spuParams.value);
+
+  if (result.code === 200) {
+    ElMessage.success(spuParams.value.id ? "更新成功" : "添加成功");
+    $emit("changeScene", {
+      flag: 0,
+      params: spuParams.value.id ? "update" : "add",
+    });
+  } else {
+    ElMessage.error(spuParams.value.id ? "更新失败" : "添加失败");
+  }
+};
+
+// 添加新的spu
+const initAddSpu = async (c3Id: number | string) => {
+  //清空数据
+  Object.assign(spuParams.value, {
+    category3Id: "", //收集三级分类的ID
+    spuName: "", //SPU的名字
+    description: "", //SPU的描述
+    tmId: "", //品牌的ID
+    spuImageList: [],
+    spuSaleAttrList: [],
+  });
+
+  //清空照片
+  imgList.value = [];
+
+  //清空销售属性
+  saleAttr.value = [];
+  saleAttrIdAndValueName.value = "";
+
+  // 存储数据
+  spuParams.value.category3Id = c3Id;
+
+  const result: AllTradeMark = await reqAllTradeMark();
+  const result1: HasSaleAttrResponseData = await reqAllSaleAttr();
+
+  allTradeMark.value = result.data;
+  allSaleAttr.value = result1.data;
+};
+
 // 对外暴露
-defineExpose({ iniHasSpuData });
+defineExpose({ iniHasSpuData, initAddSpu });
 </script>
 
 <style scoped lang="scss"></style>
