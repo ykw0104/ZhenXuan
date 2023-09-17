@@ -36,6 +36,7 @@
                 size="small"
                 icon="Plus"
                 title="添加SKU"
+                @click="addSku"
               ></el-button>
               <el-button
                 type="warning"
@@ -76,7 +77,7 @@
       <SpuForm ref="spu" v-show="scene === 1" @changeScene="changeScene" />
 
       <!-- 添加SKU的子组件 -->
-      <SkuForm v-show="scene === 2" />
+      <SkuForm v-show="scene === 2" @changeScene="changeScene" />
     </el-card>
   </div>
 </template>
@@ -95,7 +96,7 @@ import type {
 
 const categoryStore = useCategoryStore();
 
-const scene = ref<number>(0); // 0:显示已经有的spu ; 1: 添加/修改也有SPU ; 2:
+const scene = ref<number>(0); // 0:显示已经有的spu ; 1: 添加/修改也有SPU ; 2: SKU
 const pageNo = ref<number>(1);
 const pageSize = ref<number>(5);
 const total = ref<number>(0);
@@ -161,6 +162,11 @@ const changeScene = (obj: any) => {
   } else {
     getHasSpu();
   }
+};
+
+// 添加sku
+const addSku = () => {
+  scene.value = 2;
 };
 </script>
 

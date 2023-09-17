@@ -1,4 +1,5 @@
 import request from "@/utils/request";
+import type { SkuResponseData, SkuInfoData } from "./type";
 
 enum API {
   //获取已有的商品的数据-SKU
