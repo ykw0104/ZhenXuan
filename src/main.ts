@@ -22,6 +22,8 @@ import globalComponent from "@/components";
 // scss
 import "@/styles/index.scss";
 
+import "default-passive-events";
+
 const app = createApp(App);
 
 // 安装element-plus

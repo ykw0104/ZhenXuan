@@ -17,10 +17,19 @@
     </el-form-item>
 
     <el-form-item label="平台属性">
-      <el-form :inline="true">
-        <el-form-item label="内存">
+      <el-form :inline="true" label-width="50px">
+        <el-form-item
+          v-for="item in attrArr"
+          :key="item.id"
+          :label="item.attrName"
+        >
           <el-select>
-            <el-option label="256" value="256"></el-option>
+            <el-option
+              v-for="attrValue in item.attrValueList"
+              :key="attrValue.id"
+              :label="attrValue.valueName"
+              :value="`${item.id}:${attrValue.id}`"
+            ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -28,24 +37,41 @@
 
     <el-form-item label="销售属性">
       <el-form :inline="true">
-        <el-form-item label="内存">
+        <el-form-item
+          v-for="item in saleArr"
+          :key="item.id"
+          :label="item.saleAttrName"
+        >
           <el-select>
-            <el-option label="256" value="256"></el-option>
+            <el-option
+              v-for="saleAttrValue in item.spuSaleAttrValueList"
+              :key="saleAttrValue.id"
+              :label="saleAttrValue.saleAttrValueName"
+              :value="`${item.id}:${saleAttrValue.id}`"
+            ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
     </el-form-item>
 
     <el-form-item label="图片名称">
-      <el-table border>
+      <el-table border :data="imgArr">
         <el-table-column
           type="selection"
           width="80px"
           align="center"
         ></el-table-column>
-        <el-table-column label="图片"></el-table-column>
-        <el-table-column label="名称"></el-table-column>
-        <el-table-column label="操作"></el-table-column>
+        <el-table-column label="图片">
+          <template #="{ row }">
+            <img :src="row.imgUrl" style="width: 100px; height: 100px" />
+          </template>
+        </el-table-column>
+        <el-table-column label="名称" prop="imgName"></el-table-column>
+        <el-table-column label="操作">
+          <template #="{ row, $index }">
+            <el-button type="danger" size="small">设置默认</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-form-item>
 
@@ -57,11 +83,48 @@
 </template>
 
 <script setup lang="ts">
+import type {
+  SaleAttr,
+  SaleAttrResponseData,
+  SpuData,
+  SpuHasImg,
+  SpuImg,
+} from "@/api/product/spu/type";
+import { reqAttr } from "@/api/product/attr";
+import { reqSpuImageList, reqSpuHasSaleAttr } from "@/api/product/spu";
+import type { Attr, AttrResponseData } from "@/api/product/attr/type";
+import { ref } from "vue";
+
+const attrArr = ref<Attr[]>([]);
+const saleArr = ref<SaleAttr[]>([]);
+const imgArr = ref<SpuImg[]>([]);
+
 const $emit = defineEmits(["changeScene"]);
 
 const cancel = () => {
   $emit("changeScene", { flag: 0, params: "" });
 };
+
+const initSkuData = async (
+  c1Id: number | string,
+  c2Id: number | string,
+  spu: SpuData,
+) => {
+  // 请求数据
+  const result: AttrResponseData = await reqAttr(c1Id, c2Id, spu.category3Id);
+  const result1: SaleAttrResponseData = await reqSpuHasSaleAttr(
+    spu.id as number,
+  );
+  const result2: SpuHasImg = await reqSpuImageList(spu.id as number);
+
+  attrArr.value = result.data;
+  saleArr.value = result1.data;
+  imgArr.value = result2.data;
+};
+
+defineExpose({
+  initSkuData,
+});
 </script>
 
 <style scoped lang="scss"></style>

@@ -36,7 +36,7 @@
                 size="small"
                 icon="Plus"
                 title="添加SKU"
-                @click="addSku"
+                @click="addSku(row)"
               ></el-button>
               <el-button
                 type="warning"
@@ -77,7 +77,7 @@
       <SpuForm ref="spu" v-show="scene === 1" @changeScene="changeScene" />
 
       <!-- 添加SKU的子组件 -->
-      <SkuForm v-show="scene === 2" @changeScene="changeScene" />
+      <SkuForm ref="sku" v-show="scene === 2" @changeScene="changeScene" />
     </el-card>
   </div>
 </template>
@@ -106,6 +106,9 @@ const records = ref<Records>([]);
 
 // SPU实例
 const spu = ref();
+
+// SKU实例
+const sku = ref();
 
 // 获取SPU
 const getHasSpu = async (pager = 1) => {
@@ -165,8 +168,10 @@ const changeScene = (obj: any) => {
 };
 
 // 添加sku
-const addSku = () => {
+const addSku = (row: SpuData) => {
   scene.value = 2;
+
+  sku.value.initSkuData(categoryStore.c1Id, categoryStore.c2Id, row);
 };
 </script>
 
