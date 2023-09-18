@@ -46,6 +46,8 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   } else {
     if (to.path === "/login") {
       next();
+    } else if (to.path.includes("test")) {
+      next();
     } else {
       next({ path: "/login", query: { redirect: to.path } });
     }
