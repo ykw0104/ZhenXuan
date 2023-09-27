@@ -50,6 +50,7 @@
                 size="small"
                 icon="View"
                 title="查看SKU"
+                @click="findSku(row)"
               ></el-button>
               <el-button
                 type="danger"
@@ -78,6 +79,23 @@
 
       <!-- 添加SKU的子组件 -->
       <SkuForm ref="sku" v-show="scene === 2" @changeScene="changeScene" />
+
+      <!-- 对话框 -->
+      <el-dialog v-model="show" title="SKU列表">
+        <el-table :data="skuArr" border>
+          <el-table-column label="SKU名字" prop="skuName"></el-table-column>
+          <el-table-column label="SKU价格" prop="price"></el-table-column>
+          <el-table-column label="SKU重量" prop="weight"></el-table-column>
+          <el-table-column label="SKU图片">
+            <template #="{ row }">
+              <img
+                :src="row.skuDefaultImg"
+                style="width: 100px; height: 100px"
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -86,12 +104,14 @@
 import SkuForm from "./skuForm.vue";
 import SpuForm from "./spuForm.vue";
 import { ref, watch } from "vue";
-import { reqHasSpu } from "@/api/product/spu";
+import { reqHasSpu, reqSkuList } from "@/api/product/spu";
 import useCategoryStore from "@/store/modules/category";
 import type {
   HasSpuResponseData,
   Records,
   SpuData,
+  SkuInfoData,
+  SkuData,
 } from "@/api/product/spu/type";
 
 const categoryStore = useCategoryStore();
@@ -125,6 +145,10 @@ const getHasSpu = async (pager = 1) => {
     total.value = result.data.total;
   }
 };
+
+// sku数据
+const skuArr = ref<SkuData[]>([]);
+const show = ref(false);
 
 // c3Id改变, 获取SPU数据
 watch(
@@ -172,6 +196,15 @@ const addSku = (row: SpuData) => {
   scene.value = 2;
 
   sku.value.initSkuData(categoryStore.c1Id, categoryStore.c2Id, row);
+};
+
+// 查看SKU列表
+const findSku = async (row: SpuData) => {
+  const result: SkuInfoData = await reqSkuList(row.id as number);
+  if (result.code === 200) {
+    skuArr.value = result.data;
+    show.value = true;
+  }
 };
 </script>
 
