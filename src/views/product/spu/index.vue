@@ -52,12 +52,21 @@
                 title="查看SKU"
                 @click="findSku(row)"
               ></el-button>
-              <el-button
-                type="danger"
-                size="small"
-                icon="Delete"
-                title="删除SKU"
-              ></el-button>
+
+              <el-popconfirm
+                :title="`确定删除${row.spuName}?`"
+                width="200px"
+                @confirm="deleteSpu(row)"
+              >
+                <template #reference>
+                  <el-button
+                    type="danger"
+                    size="small"
+                    icon="Delete"
+                    title="删除SKU"
+                  ></el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -103,8 +112,8 @@
 <script setup lang="ts">
 import SkuForm from "./skuForm.vue";
 import SpuForm from "./spuForm.vue";
-import { ref, watch } from "vue";
-import { reqHasSpu, reqSkuList } from "@/api/product/spu";
+import { ref, watch, onBeforeUnmount } from "vue";
+import { reqHasSpu, reqSkuList, reqRemoveSpu } from "@/api/product/spu";
 import useCategoryStore from "@/store/modules/category";
 import type {
   HasSpuResponseData,
@@ -113,6 +122,7 @@ import type {
   SkuInfoData,
   SkuData,
 } from "@/api/product/spu/type";
+import { ElMessage } from "element-plus";
 
 const categoryStore = useCategoryStore();
 
@@ -206,6 +216,22 @@ const findSku = async (row: SpuData) => {
     show.value = true;
   }
 };
+
+// 删除SPU
+const deleteSpu = async (row: SpuData) => {
+  const result = await reqRemoveSpu(row.id as number);
+  if (result.code === 200) {
+    ElMessage.success("删除成功");
+    getHasSpu(records.value.length > 1 ? pageNo.value : pageNo.value - 1);
+  } else {
+    ElMessage.error("删除失败");
+  }
+};
+
+// 路由组件销毁前, 清空仓库关于分类的数据
+onBeforeUnmount(() => {
+  categoryStore.$reset();
+});
 </script>
 
 <script lang="ts">
