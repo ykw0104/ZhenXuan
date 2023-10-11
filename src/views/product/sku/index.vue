@@ -58,7 +58,12 @@
             icon="Edit"
             @click="updateSku"
           ></el-button>
-          <el-button type="info" size="small" icon="InfoFilled"></el-button>
+          <el-button
+            type="info"
+            size="small"
+            icon="InfoFilled"
+            @click="findSku"
+          ></el-button>
           <el-button type="danger" size="small" icon="Delete"></el-button>
         </template>
       </el-table-column>
@@ -74,6 +79,60 @@
       @current-change="getHasSku"
       @size-change="handler"
     />
+
+    <!-- 抽屉组件 -->
+    <el-drawer v-model="drawer">
+      <template #header>
+        <h4>查看商品详情</h4>
+      </template>
+
+      <template #default>
+        <el-row>
+          <el-col :span="6">名称</el-col>
+          <el-col :span="18">mate20</el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="6">描述</el-col>
+          <el-col :span="18">mate20</el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="6">价格</el-col>
+          <el-col :span="18">mate20</el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="6">平台属性</el-col>
+          <el-col :span="18">
+            <el-tag v-for="item in 10" :key="item">{{ item }}</el-tag>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="6">销售属性</el-col>
+          <el-col :span="18">
+            <el-tag v-for="item in 10" :key="item">{{ item }}</el-tag>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="6">商品图片</el-col>
+          <el-col :span="18">
+            <el-carousel
+              :interval="4000"
+              indicator-position="none"
+              type="card"
+              height="200px"
+            >
+              <el-carousel-item v-for="item in 3" :key="item">
+                <h3 text="2xl" justify="center">{{ item }}</h3>
+              </el-carousel-item>
+            </el-carousel>
+          </el-col>
+        </el-row>
+      </template>
+    </el-drawer>
   </el-card>
 </template>
 
@@ -87,6 +146,8 @@ const pageNo = ref<number>(1);
 const pageSize = ref<number>(10);
 const total = ref<number>(0);
 const skuArr = ref<SkuData[]>([]);
+
+const drawer = ref(false);
 
 onMounted(() => {
   getHasSku();
@@ -128,6 +189,11 @@ const updateSale = async (row: SkuData) => {
 const updateSku = () => {
   ElMessage.success("功能尚未完成...");
 };
+
+// 查看商品详细
+const findSku = () => {
+  drawer.value = true;
+};
 </script>
 
 <script lang="ts">
@@ -136,4 +202,28 @@ export default {
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.el-row {
+  margin: 15px 0;
+
+  .el-tag {
+    margin: 0 5px 10px;
+  }
+}
+
+.el-carousel__item h3 {
+  color: #475669;
+  opacity: 0.75;
+  line-height: 200px;
+  margin: 0;
+  text-align: center;
+}
+
+.el-carousel__item:nth-child(2n) {
+  background-color: #99a9bf;
+}
+
+.el-carousel__item:nth-child(2n + 1) {
+  background-color: #d3dce6;
+}
+</style>
