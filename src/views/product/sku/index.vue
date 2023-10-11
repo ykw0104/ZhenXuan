@@ -46,8 +46,18 @@
 
       <el-table-column label="操作" width="250px" fixed="right">
         <template #="{ row }">
-          <el-button type="primary" size="small" icon="Top"></el-button>
-          <el-button type="warning" size="small" icon="Edit"></el-button>
+          <el-button
+            :type="row.isSale === 1 ? 'primary' : 'info'"
+            size="small"
+            :icon="row.isSale === 1 ? 'Bottom' : 'Top'"
+            @click="updateSale(row)"
+          ></el-button>
+          <el-button
+            type="warning"
+            size="small"
+            icon="Edit"
+            @click="updateSku"
+          ></el-button>
           <el-button type="info" size="small" icon="InfoFilled"></el-button>
           <el-button type="danger" size="small" icon="Delete"></el-button>
         </template>
@@ -69,8 +79,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { reqSkuList } from "@/api/product/sku";
+import { reqSkuList, reqSaleSku, reqCancelSale } from "@/api/product/sku";
 import type { SkuResponseData, SkuData } from "@/api/product/sku/type";
+import { ElMessage } from "element-plus";
 
 const pageNo = ref<number>(1);
 const pageSize = ref<number>(10);
@@ -98,6 +109,24 @@ const getHasSku = async (pager = 1) => {
 // 分页器 下拉菜单 改变
 const handler = () => {
   getHasSku();
+};
+
+const updateSale = async (row: SkuData) => {
+  if (row.isSale === 1) {
+    // 下架
+    await reqCancelSale(row.id as number);
+    ElMessage.success("下架成功");
+    getHasSku(pageNo.value);
+  } else {
+    // 上架
+    await reqSaleSku(row.id as number);
+    ElMessage.success("上架成功");
+    getHasSku(pageNo.value);
+  }
+};
+
+const updateSku = () => {
+  ElMessage.success("功能尚未完成...");
 };
 </script>
 
