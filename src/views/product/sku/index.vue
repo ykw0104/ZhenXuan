@@ -64,7 +64,17 @@
             icon="InfoFilled"
             @click="findSku(row)"
           ></el-button>
-          <el-button type="danger" size="small" icon="Delete"></el-button>
+
+          <el-popconfirm title="确认删除吗?" width="200px">
+            <template #reference>
+              <el-button
+                type="danger"
+                size="small"
+                icon="Delete"
+                @confirm="removeSku(row.id)"
+              ></el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -154,6 +164,7 @@ import {
   reqSaleSku,
   reqCancelSale,
   reqSkuInfo,
+  reqRemoveSku,
 } from "@/api/product/sku";
 import type {
   SkuResponseData,
@@ -216,6 +227,16 @@ const findSku = async (row: SkuData) => {
   drawer.value = true;
   const result: SkuInfoData = await reqSkuInfo(row.id as number);
   skuInfo.value = result.data;
+};
+
+const removeSku = async (id: number) => {
+  const result: any = await reqRemoveSku(id);
+  if (result.code === 200) {
+    ElMessage.success("删除成功");
+    getHasSku(skuArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
+  } else {
+    ElMessage.error("删除失败");
+  }
 };
 </script>
 
