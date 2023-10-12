@@ -62,7 +62,7 @@
             type="info"
             size="small"
             icon="InfoFilled"
-            @click="findSku"
+            @click="findSku(row)"
           ></el-button>
           <el-button type="danger" size="small" icon="Delete"></el-button>
         </template>
@@ -89,30 +89,34 @@
       <template #default>
         <el-row>
           <el-col :span="6">名称</el-col>
-          <el-col :span="18">mate20</el-col>
+          <el-col :span="18">{{ skuInfo.skuName }}</el-col>
         </el-row>
 
         <el-row>
           <el-col :span="6">描述</el-col>
-          <el-col :span="18">mate20</el-col>
+          <el-col :span="18">{{ skuInfo.skuDesc }}</el-col>
         </el-row>
 
         <el-row>
           <el-col :span="6">价格</el-col>
-          <el-col :span="18">mate20</el-col>
+          <el-col :span="18">{{ skuInfo.price }}</el-col>
         </el-row>
 
         <el-row>
           <el-col :span="6">平台属性</el-col>
           <el-col :span="18">
-            <el-tag v-for="item in 10" :key="item">{{ item }}</el-tag>
+            <el-tag v-for="item in skuInfo.skuAttrValueList" :key="item.id">
+              {{ item.valueName }}
+            </el-tag>
           </el-col>
         </el-row>
 
         <el-row>
           <el-col :span="6">销售属性</el-col>
           <el-col :span="18">
-            <el-tag v-for="item in 10" :key="item">{{ item }}</el-tag>
+            <el-tag v-for="item in skuInfo.skuSaleAttrValueList" :key="item.id">
+              {{ item.saleAttrValueName }}
+            </el-tag>
           </el-col>
         </el-row>
 
@@ -125,8 +129,15 @@
               type="card"
               height="200px"
             >
-              <el-carousel-item v-for="item in 3" :key="item">
-                <h3 text="2xl" justify="center">{{ item }}</h3>
+              <el-carousel-item
+                v-for="item in skuInfo.skuImageList"
+                :key="item.id"
+              >
+                <el-image
+                  :src="item.imgUrl"
+                  fit="cover"
+                  style="width: 100%; height: 100%"
+                />
               </el-carousel-item>
             </el-carousel>
           </el-col>
@@ -138,8 +149,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { reqSkuList, reqSaleSku, reqCancelSale } from "@/api/product/sku";
-import type { SkuResponseData, SkuData } from "@/api/product/sku/type";
+import {
+  reqSkuList,
+  reqSaleSku,
+  reqCancelSale,
+  reqSkuInfo,
+} from "@/api/product/sku";
+import type {
+  SkuResponseData,
+  SkuData,
+  SkuInfoData,
+} from "@/api/product/sku/type";
 import { ElMessage } from "element-plus";
 
 const pageNo = ref<number>(1);
@@ -148,6 +168,7 @@ const total = ref<number>(0);
 const skuArr = ref<SkuData[]>([]);
 
 const drawer = ref(false);
+const skuInfo = ref<SkuData>({});
 
 onMounted(() => {
   getHasSku();
@@ -191,8 +212,10 @@ const updateSku = () => {
 };
 
 // 查看商品详细
-const findSku = () => {
+const findSku = async (row: SkuData) => {
   drawer.value = true;
+  const result: SkuInfoData = await reqSkuInfo(row.id as number);
+  skuInfo.value = result.data;
 };
 </script>
 
