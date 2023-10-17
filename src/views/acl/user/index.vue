@@ -94,7 +94,7 @@
     <!-- 抽屉 -->
     <el-drawer v-model="drawer">
       <template #header>
-        <h4>添加用户</h4>
+        <h4>{{ userParams.id ? "更新用户" : "添加用户" }}</h4>
       </template>
 
       <!-- 内容 -->
@@ -112,7 +112,7 @@
               v-model="userParams.name"
             ></el-input>
           </el-form-item>
-          <el-form-item label="用户密码" prop="password">
+          <el-form-item v-if="!userParams.id" label="用户密码" prop="password">
             <el-input
               type="password"
               placeholder="请输入用户密码"
@@ -243,41 +243,47 @@ const handler = () => {
 // 添加用户
 const addUser = () => {
   drawer.value = true;
+
+  formRef.value?.resetFields();
+
   // 清空抽屉存的上次数据
   Object.assign(userParams, {
     username: "",
     name: "",
     password: "",
-  });
-
-  nextTick(() => {
-    // 清空上传的数据
-    formRef.value?.resetFields();
+    id: 0,
   });
 };
 
-// 更新用户抽屉
-const updateUser = async (_row: User) => {
+// 修改用户信息
+const updateUser = async (row: User) => {
   drawer.value = true;
+
+  formRef.value?.resetFields();
+
+  Object.assign(userParams, row);
 };
 
 // 抽屉的保存按钮
 const save = async () => {
   // 表单验证
-  await formRef.value?.validate((valid) => {
-    console.log(valid);
-  });
+  await formRef.value?.validate(async (valid) => {
+    if (valid) {
+      // 添加或更新用户
+      const result = await reqAddOrUpdateUser(userParams);
+      if (result.code === 200) {
+        drawer.value = false;
+        ElMessage.success(userParams.id ? "更新成功" : "添加成功");
+        getHasUser(userParams.id ? pageNo.value : 1);
 
-  // 添加或更新用户
-  const result = await reqAddOrUpdateUser(userParams);
-  if (result.code === 200) {
-    drawer.value = false;
-    ElMessage.success(userParams.id ? "更新成功" : "添加成功");
-    getHasUser();
-  } else {
-    drawer.value = false;
-    ElMessage.error(userParams.id ? "更新失败" : "添加失败");
-  }
+        // 刷新游览器
+        window.location.reload();
+      } else {
+        drawer.value = false;
+        ElMessage.error(userParams.id ? "更新失败" : "添加失败");
+      }
+    }
+  });
 };
 
 // 抽屉的关闭抽屉
