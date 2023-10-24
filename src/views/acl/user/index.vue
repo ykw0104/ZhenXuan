@@ -173,8 +173,8 @@
       </template>
 
       <template #footer>
-        <el-button>取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button @click="() => (drawer1 = false)">取消</el-button>
+        <el-button type="primary" @click="confirmClick">确定</el-button>
       </template>
     </el-drawer>
   </div>
@@ -394,6 +394,21 @@ const handleCheckedRoleChange = (value: RoleData[]) => {
   checkAll.value = value.length === allRole.value.length;
   isIndeterminate.value =
     value.length > 0 && value.length !== allRole.value.length;
+};
+
+// 抽屉确认按钮
+const confirmClick = async () => {
+  const data: SetRoleData = {
+    userId: userParams.id as number,
+    roleIdList: userRole.value.map((item) => item.id as number),
+  };
+
+  const result = await reqSetUserRole(data);
+  if (result.code === 200) {
+    ElMessage.success("分配成功");
+    drawer1.value = false;
+    getHasUser(pageNo.value);
+  }
 };
 </script>
 
