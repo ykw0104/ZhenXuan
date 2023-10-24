@@ -63,7 +63,12 @@
           align="center"
         >
           <template #="{ row }">
-            <el-button type="primary" size="small" icon="User">
+            <el-button
+              type="primary"
+              size="small"
+              icon="User"
+              @click="setRole(row)"
+            >
               分配角色
             </el-button>
             <el-button
@@ -91,7 +96,7 @@
       />
     </el-card>
 
-    <!-- 抽屉 -->
+    <!-- 添加/更新用户的抽屉 -->
     <el-drawer v-model="drawer">
       <template #header>
         <h4>{{ userParams.id ? "更新用户" : "添加用户" }}</h4>
@@ -130,11 +135,53 @@
         </div>
       </template>
     </el-drawer>
+
+    <el-drawer v-model="drawer1">
+      <template #header>
+        <h4>分配角色用户</h4>
+      </template>
+
+      <template #default>
+        <el-form>
+          <el-form-item label="用户姓名">
+            <el-input v-model="userParams.username" disabled></el-input>
+          </el-form-item>
+
+          <el-form-item label="职位列表">
+            <el-checkbox
+              v-model="checkAll"
+              :indeterminate="isIndeterminate"
+              @change="handleCheckChangeAll"
+            >
+              全选
+            </el-checkbox>
+
+            <el-checkbox-group
+              v-model="userRole"
+              @change="handleCheckedRoleChange"
+            >
+              <el-checkbox
+                v-for="(role, index) in allRole"
+                :key="index"
+                :label="role"
+              >
+                {{ role.roleName }}
+              </el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+        </el-form>
+      </template>
+
+      <template #footer>
+        <el-button>取消</el-button>
+        <el-button type="primary">确定</el-button>
+      </template>
+    </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, nextTick } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import {
   reqUserInfo,
   reqAddOrUpdateUser,
@@ -150,6 +197,7 @@ import type {
   User,
   AllRoleResponseData,
   AllRole,
+  RoleData,
 } from "@/api/acl/user/type";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
@@ -161,6 +209,13 @@ const total = ref<number>(0);
 const userArr = ref<User[]>([]);
 
 const drawer = ref<boolean>(false);
+const drawer1 = ref<boolean>(false);
+
+const allRole = ref<RoleData[]>([]);
+const userRole = ref<RoleData[]>([]);
+const checkAll = ref(true);
+// 复选框不确定状态
+const isIndeterminate = ref(true);
 
 // form组件实例
 const formRef = ref<FormInstance>();
@@ -274,7 +329,7 @@ const save = async () => {
       if (result.code === 200) {
         drawer.value = false;
         ElMessage.success(userParams.id ? "更新成功" : "添加成功");
-        getHasUser(userParams.id ? pageNo.value : 1);
+        // getHasUser(userParams.id ? pageNo.value : 1);
 
         // 刷新游览器
         window.location.reload();
@@ -289,6 +344,56 @@ const save = async () => {
 // 抽屉的关闭抽屉
 const cancel = () => {
   drawer.value = false;
+};
+
+// 分配角色的按钮
+const setRole = async (row: User) => {
+  Object.assign(userParams, row);
+  // 获取全部职位和当前用户的职位
+  const result: AllRoleResponseData = await reqAllRole(userParams.id as number);
+  if (result.code === 200) {
+    allRole.value = result.data.allRolesList;
+    userRole.value = result.data.assignRoles;
+
+    drawer1.value = true;
+  }
+};
+
+// const allRole = ref<string[]>(["销售", "前台", "所有"]);
+// const userRole = ref<string[]>(["销售", "前台"]);
+// // 复选框全选
+// const checkAll = ref(false);
+// // 设置不确定的样式
+// const isIndeterminate = ref(false);
+
+// const handleCheckAllChange = (val: boolean) => {
+//   userRole.value = val ? allRole.value : [];
+//   isIndeterminate.value = false;
+// };
+
+// const handleCheckedRoleChange = (value: string[]) => {
+//   const checkedCount = value.length;
+//   checkAll.value = checkedCount === allRole.value.length;
+//   isIndeterminate.value =
+//     value.length > 0 && checkedCount !== allRole.value.length;
+// };
+
+// const drawer1Open = () => {
+//   checkAll.value =
+//     userRole.value.length > 0 && userRole.value.length === allRole.value.length;
+//   isIndeterminate.value =
+//     userRole.value.length > 0 && userRole.value.length !== allRole.value.length;
+// };
+
+const handleCheckChangeAll = (val: boolean) => {
+  userRole.value = val ? allRole.value : [];
+  isIndeterminate.value = false;
+};
+
+const handleCheckedRoleChange = (value: RoleData[]) => {
+  checkAll.value = value.length === allRole.value.length;
+  isIndeterminate.value =
+    value.length > 0 && value.length !== allRole.value.length;
 };
 </script>
 
