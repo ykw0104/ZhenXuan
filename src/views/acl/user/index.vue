@@ -15,10 +15,21 @@
 
     <el-card style="margin: 10px 0">
       <el-button type="primary" @click="addUser">添加用户</el-button>
-      <el-button type="danger">批量删除</el-button>
+      <el-button
+        type="danger"
+        :disabled="selectIdArr.length === 0"
+        @click="deleteSelectUser"
+      >
+        批量删除
+      </el-button>
 
       <!-- 表格展示 -->
-      <el-table :data="userArr" style="margin: 10px 0" border>
+      <el-table
+        :data="userArr"
+        style="margin: 10px 0"
+        border
+        @selection-change="selectChange"
+      >
         <el-table-column type="selection" align="center"></el-table-column>
         <el-table-column
           type="index"
@@ -71,6 +82,7 @@
             >
               分配角色
             </el-button>
+
             <el-button
               type="primary"
               size="small"
@@ -79,7 +91,18 @@
             >
               编辑
             </el-button>
-            <el-button type="danger" size="small" icon="Delete">删除</el-button>
+
+            <el-popconfirm
+              :title="`确认删除用户: ${row.username}`"
+              width="260px"
+              @confirm="deleteUser(row.id)"
+            >
+              <template #reference>
+                <el-button type="danger" size="small" icon="Delete">
+                  删除
+                </el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -226,6 +249,9 @@ const userParams = reactive<User>({
   name: "",
   password: "",
 });
+
+// 批量删除的用户ID
+const selectIdArr = ref<number[]>([]);
 
 // 校验规则
 const validateUsername = (_rule: any, value: any, callback: any) => {
@@ -408,6 +434,30 @@ const confirmClick = async () => {
     ElMessage.success("分配成功");
     drawer1.value = false;
     getHasUser(pageNo.value);
+  }
+};
+
+// 删除用户
+const deleteUser = async (userId: number) => {
+  const result = await reqRemoveUser(userId);
+  if (result.code === 200) {
+    ElMessage.success("删除成功");
+    getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
+  }
+};
+
+// table复选框勾选触发
+const selectChange = (value: User[]) => {
+  selectIdArr.value = value.map((item) => item.id as number);
+};
+
+// 批量删除用户
+const deleteSelectUser = async () => {
+  const result = await reqSelectUser(selectIdArr.value);
+
+  if (result.code === 200) {
+    ElMessage.success("删除成功");
+    getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
   }
 };
 </script>

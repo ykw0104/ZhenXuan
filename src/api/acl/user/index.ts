@@ -46,4 +46,4 @@ export const reqRemoveUser = (userId: number) =>
   request.delete<any, any>(API.DELETEUSER_URL + userId);
 //批量删除的接口
 export const reqSelectUser = (idList: number[]) =>
-  request.delete(API.DELETEALLUSER_URL, { data: idList });
+  request.delete<any, any>(API.DELETEALLUSER_URL, { data: idList });
