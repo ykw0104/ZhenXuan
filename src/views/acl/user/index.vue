@@ -3,12 +3,17 @@
     <el-card>
       <el-form inline class="form">
         <el-form-item label="用户名:">
-          <el-input placeholder="请输入用户名"></el-input>
+          <el-input
+            placeholder="请输入用户名"
+            v-model.trim="keyword"
+          ></el-input>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button>重置</el-button>
+          <el-button type="primary" :disabled="keyword === ''" @click="search">
+            搜索
+          </el-button>
+          <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -224,6 +229,9 @@ import type {
 } from "@/api/acl/user/type";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
+import useLayoutSettingStore from "@/store/modules/setting";
+
+const settingStore = useLayoutSettingStore();
 
 const pageNo = ref<number>(1);
 const pageSize = ref<number>(5);
@@ -239,6 +247,9 @@ const userRole = ref<RoleData[]>([]);
 const checkAll = ref(true);
 // 复选框不确定状态
 const isIndeterminate = ref(true);
+
+// 搜索关键字
+const keyword = ref<string>("");
 
 // form组件实例
 const formRef = ref<FormInstance>();
@@ -310,6 +321,7 @@ const getHasUser = async (pager = 1) => {
   const result: UserResponseData = await reqUserInfo(
     pageNo.value,
     pageSize.value,
+    keyword.value,
   );
   if (result.code === 200) {
     total.value = result.data.total;
@@ -459,6 +471,17 @@ const deleteSelectUser = async () => {
     ElMessage.success("删除成功");
     getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
   }
+};
+
+// 搜索用户
+const search = async () => {
+  await getHasUser();
+  keyword.value = "";
+};
+
+// 重置
+const reset = () => {
+  settingStore.refresh = !settingStore.refresh;
 };
 </script>
 
