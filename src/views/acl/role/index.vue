@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card>
-      <el-form>
+      <el-form class="search-form">
         <el-form-item label="职位搜索">
           <el-input
             placeholder="请输入关键字"
@@ -19,7 +19,9 @@
     </el-card>
 
     <el-card>
-      <el-button type="primary" icon="Plus">添加职位</el-button>
+      <el-button type="primary" icon="Plus" @click="addRole">
+        添加职位
+      </el-button>
       <el-table border :data="allRole">
         <el-table-column
           type="index"
@@ -60,7 +62,14 @@
             <el-button type="primary" icon="User" size="small">
               分配权限
             </el-button>
-            <el-button type="primary" icon="Edit" size="small">编辑</el-button>
+            <el-button
+              type="primary"
+              icon="Edit"
+              size="small"
+              @click="updateRole(row)"
+            >
+              编辑
+            </el-button>
             <el-button type="danger" icon="Delete" size="small">删除</el-button>
           </template>
         </el-table-column>
@@ -76,6 +85,22 @@
         @size-change="sizeChange"
       />
     </el-card>
+
+    <!-- 职位的添加和更新 -->
+    <el-dialog v-model="dialogVisible" title="添加职位">
+      <el-form>
+        <el-form-item label="职位名称">
+          <el-input placeholder="请输入职位名称" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="() => (dialogVisible = false)">取消</el-button>
+          <el-button type="primary">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -112,6 +137,9 @@ const keyword = ref("");
 const allRole = ref<RoleData[]>([]);
 const total = ref(0);
 
+// 对话框显示和隐藏
+const dialogVisible = ref(false);
+
 // 请求数据
 const getHasRole = async (page = 1) => {
   pageNo.value = page;
@@ -145,6 +173,16 @@ const search = () => {
 const reset = () => {
   setttingStore.refresh = !setttingStore.refresh;
 };
+
+// 添加职位
+const addRole = () => {
+  dialogVisible.value = true;
+};
+
+// 更新职位
+const updateRole = (row: RoleData) => {
+  dialogVisible.value = true;
+};
 </script>
 
 <script lang="ts">
@@ -154,7 +192,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.el-form {
+.search-form {
   display: flex;
   justify-content: space-between;
   align-items: center;
