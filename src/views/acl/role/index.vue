@@ -87,17 +87,23 @@
     </el-card>
 
     <!-- 职位的添加和更新 -->
-    <el-dialog v-model="dialogVisible" title="添加职位">
-      <el-form>
-        <el-form-item label="职位名称">
-          <el-input placeholder="请输入职位名称" />
+    <el-dialog
+      v-model="dialogVisible"
+      :title="RoleParams.id ? `更新职位` : `添加职位`"
+    >
+      <el-form ref="form" :model="RoleParams" :rules="rules">
+        <el-form-item label="职位名称" prop="roleName">
+          <el-input
+            placeholder="请输入职位名称"
+            v-model="RoleParams.roleName"
+          />
         </el-form-item>
       </el-form>
 
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="() => (dialogVisible = false)">取消</el-button>
-          <el-button type="primary">确定</el-button>
+          <el-button type="primary" @click="save">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -125,6 +131,7 @@ import type {
 import useLayOutSettingStore from "@/store/modules/setting";
 import { ElMessage } from "element-plus";
 import { Search } from "@element-plus/icons-vue";
+import type { FormInstance, FormRules } from "element-plus";
 
 const setttingStore = useLayOutSettingStore();
 
@@ -139,6 +146,14 @@ const total = ref(0);
 
 // 对话框显示和隐藏
 const dialogVisible = ref(false);
+
+// 收集的新增数据
+const RoleParams = reactive<RoleData>({
+  roleName: "",
+});
+
+// form组件实例
+const form = ref<FormInstance>();
 
 // 请求数据
 const getHasRole = async (page = 1) => {
@@ -177,11 +192,51 @@ const reset = () => {
 // 添加职位
 const addRole = () => {
   dialogVisible.value = true;
+
+  // 清空数据
+  Object.assign(RoleParams, {
+    roleName: "",
+    id: 0,
+  });
+  form.value?.clearValidate();
 };
 
 // 更新职位
 const updateRole = (row: RoleData) => {
   dialogVisible.value = true;
+  Object.assign(RoleParams, row);
+  form.value?.clearValidate();
+};
+
+// 表单校验
+const validateRoleName = (_rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("职位不能为空"));
+  } else if (value.trim().length < 2) {
+    callback(new Error("职位名称至少2位"));
+  } else {
+    callback();
+  }
+};
+const rules = reactive({
+  roleName: [{ required: true, validator: validateRoleName, trigger: "blur" }],
+});
+
+// 对话框确认按钮
+const save = async () => {
+  // 表单校验结果
+  await form.value?.validate(async (valid) => {
+    if (valid) {
+      // 请求添加/更新职位
+      const result = await reqAddOrUpdateRole(RoleParams);
+
+      if (result.code === 200) {
+        ElMessage.success(RoleParams.id ? "更新成功" : "添加成功");
+        dialogVisible.value = false;
+        getHasRole(RoleParams.id ? pageNo.value : 1);
+      }
+    }
+  });
 };
 </script>
 
