@@ -59,7 +59,12 @@
           align="center"
         >
           <template #="{ row }">
-            <el-button type="primary" icon="User" size="small">
+            <el-button
+              type="primary"
+              icon="User"
+              size="small"
+              @click="setPermisstion(row)"
+            >
               分配权限
             </el-button>
             <el-button
@@ -107,6 +112,38 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 分配用户的菜单和按钮的权限 -->
+    <el-drawer v-model="drawer" direction="rtl">
+      <template #header>
+        <h4>分配菜单和按钮的权限</h4>
+      </template>
+
+      <!-- 内容 -->
+      <template #default>
+        <div
+          class="loading"
+          v-if="menuArr.length === 0"
+          v-loading="true"
+          element-loading-text="加载中..."
+        ></div>
+        <el-tree
+          v-else
+          :data="menuArr"
+          show-checkbox
+          default-expand-all
+          node-key="id"
+          :props="defaultProps"
+        />
+      </template>
+
+      <template #footer>
+        <div style="flex: auto">
+          <el-button @click="() => (drawer = false)">取消</el-button>
+          <el-button type="primary">确认</el-button>
+        </div>
+      </template>
+    </el-drawer>
   </div>
 </template>
 
@@ -154,6 +191,16 @@ const RoleParams = reactive<RoleData>({
 
 // form组件实例
 const form = ref<FormInstance>();
+
+// 分配权限的显示和隐藏
+const drawer = ref(false);
+
+// 树形控件数据
+const defaultProps = {
+  children: "children",
+  label: "name",
+};
+const menuArr = ref<MenuList>([]);
 
 // 请求数据
 const getHasRole = async (page = 1) => {
@@ -238,6 +285,19 @@ const save = async () => {
     }
   });
 };
+
+// 分配权限
+const setPermisstion = async (row: RoleData) => {
+  drawer.value = true;
+  // 保存数据
+  Object.assign(RoleParams, row);
+  const result: MenuResponseData = await reqAllMenuList(
+    RoleParams.id as number,
+  );
+  if (result.code === 200) {
+    menuArr.value = result.data;
+  }
+};
 </script>
 
 <script lang="ts">
@@ -263,5 +323,11 @@ export default {
 
 .el-table {
   margin: 10px 0;
+}
+
+.loading {
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
 }
 </style>
